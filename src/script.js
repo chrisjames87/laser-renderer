@@ -134,7 +134,7 @@ const floor = new THREE.Mesh(
 )
 floor.receiveShadow = true
 floor.rotation.x = - Math.PI * 0.5
-scene.add(floor)
+// scene.add(floor)
 
 /**
  * Lights
@@ -181,7 +181,7 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.OrthographicCamera( sizes.width / -2, sizes.width / 2, sizes.height / 2, sizes.height / -2, 1, 1000 );
-camera.position.set(- 7,  0.714092682660206, -0.09529204415660272)
+camera.position.set(-0.09815141023504063,  1, -6.963840775144232)
 camera.zoom = 170
 camera.updateProjectionMatrix();
 scene.add(camera)
@@ -319,6 +319,54 @@ debugObject.createBox = () =>
     )
 }
 gui.add(debugObject, 'createBox')
+
+
+// createPoint
+
+const createPoint = (position) => {
+
+    const size = 1;
+    const geometry = new THREE.PlaneGeometry(size, size);
+    const material = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+
+    const mesh = new THREE.Mesh(geometry, material);
+
+    mesh.scale.set(size, size, size);
+    mesh.castShadow = true;
+    mesh.position.copy(position);
+    scene.add(mesh);
+
+    // Cannon.js body
+    const shape = new CANNON.Box(new CANNON.Vec3(size * 0.5, size * 0.5, size * 0.5));
+
+    const body = new CANNON.Body({
+        mass: 1,
+        position: new CANNON.Vec3(0, 3, 0),
+        shape,
+        material: defaultMaterial,
+    });
+
+    // Set the initial position of the CANNON body
+    body.position.copy(position);
+
+    // Add the body to the world
+    world.addBody(body);
+
+    // Save in objects
+    objectsToUpdate.push({ mesh, body });
+    };
+
+    debugObject.createPoint = () => {
+    createPoint(
+        {
+        x: 0,
+        y: 3,
+        z: 0,
+        },
+    );
+};
+gui.add(debugObject, 'createPoint');
+
 
 
 /**
