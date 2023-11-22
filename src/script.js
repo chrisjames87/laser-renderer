@@ -1,6 +1,7 @@
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { SVGRenderer } from 'three/examples/jsm/renderers/SVGRenderer';
 import * as dat from 'lil-gui'
 import CANNON from 'cannon'
 
@@ -356,18 +357,30 @@ const createPoint = (position) => {
     objectsToUpdate.push({ mesh, body });
     };
 
-    debugObject.createPoint = () => {
+debugObject.createPoint = () => {
     createPoint(
         {
-        x: 0,
+        x: 0, // left to right
         y: 3,
-        z: 0,
+        z: 0, // depth (not really needed)
         },
     );
 };
 gui.add(debugObject, 'createPoint');
 
+// save SVG
+debugObject.createSVG = () => {
 
+    const rendererSVG = new SVGRenderer();
+  
+    rendererSVG.setSize(1080, 1080);
+    rendererSVG.render(scene, camera);
+    console.log("Made an SVG");
+    console.log(rendererSVG.domElement);
+};
+
+
+gui.add(debugObject, 'createSVG');
 
 /**
  * Animate
