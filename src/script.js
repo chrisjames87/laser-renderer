@@ -189,7 +189,7 @@ camera.updateProjectionMatrix();
 scene.add(camera)
 
 camera.addEventListener( "change", event => {  
-    console.log( camera.zoom ); 
+    // console.log( camera.zoom ); 
 }) 
 
 
@@ -200,7 +200,7 @@ controls.enableDamping = true
 
 
 controls.addEventListener( "change", event => {  
-    console.log( controls.object.position ); 
+    // console.log( controls.object.position ); 
 }) 
 
 function getControlsZoom()
@@ -219,6 +219,7 @@ const renderer = new THREE.WebGLRenderer({
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.setSize(sizes.width, sizes.height)
+// renderer.setViewport(0, 0, 1080, 1080)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 /**
@@ -361,7 +362,7 @@ const createPoint = (position) => {
 debugObject.createPoint = () => {
     createPoint(
         {
-        x: 0, // left to right
+        x: -0.55, // left to right
         y: 3,
         z: 0, // depth (not really needed)
         },
@@ -374,14 +375,18 @@ debugObject.createSVG = () => {
 
     const rendererSVG = new SVGRenderer();
   
-    rendererSVG.setSize(1080, 1080);
+    rendererSVG.setSize(sizes.width, sizes.height)
     rendererSVG.render(scene, camera);
     console.log("Made an SVG");
     console.log(rendererSVG.domElement);
+
+    console.log(rendererSVG.domElement.getElementsByTagName('path'));
+    sendMessage()
 };
 
 
 gui.add(debugObject, 'createSVG');
+
 
 /**
  * Animate
@@ -420,3 +425,44 @@ const tick = () =>
 }
 
 tick()
+
+
+
+/**
+ * Websockets
+ */
+
+
+// define a reconnecting WebSocket
+const options = {
+    maxEnqueuedMessages: 0
+};
+const rws = new ReconnectingWebSocket('ws://localhost:8321', [], options);
+
+// Function to send a message to the WebSocket server
+const sendMessage = () => {
+    const rendererSVG = new SVGRenderer();
+    rendererSVG.setSize(sizes.width, sizes.height);
+    renderer.setViewport(0, 0, sizes.width, sizes.height);
+    rendererSVG.render(scene, camera);
+    // console.log("Made an SVG");
+    // console.log(rendererSVG.domElement);
+
+    // check for path inside svg file
+
+    if (rendererSVG.domElement.getElementsByTagName('path').length > 0) {
+        rendererSVG.domElement.setAttribute('viewBox', '0 0 1080 1080');
+        const messageObject = { position: 'SVG', file: rendererSVG.domElement.outerHTML };
+        const messageString = JSON.stringify(messageObject);
+        console.log(messageString);
+        rws.send(messageString);
+    } else {
+        // String is empty
+        // console.log("SVG is empty");
+    }
+
+
+};
+
+// Execute sendMessage every second
+// setInterval(sendMessage, 1000);
