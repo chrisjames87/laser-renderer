@@ -39,32 +39,15 @@ buttons.createSVG = () => {
 
 gui.add(buttons, 'createSVG');
 
-
+const sizes = {
+    width: 1080,
+    height: 1080
+}
 
 init();
 animate();
 
-function init() {
-    // define a reconnecting WebSocket
-    if (ENABLED_WEBSOCKETS) {
-        const rws_options = {
-            maxEnqueuedMessages: 0
-        };
-        rws = new ReconnectingWebSocket(LASER_WC_URL, [], rws_options);
-    }
-
-    camera = new THREE.PerspectiveCamera( 33, window.innerWidth / window.innerHeight, 0.1, 100 );
-    camera.position.z = 10;
-
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0, 0, 0 );
-
-    renderer = new SVGRenderer();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
-
-    //
-
+function addRing() {
     const vertices = [];
     const divisions = 50;
 
@@ -84,19 +67,44 @@ function init() {
 
     //
 
-
-
     const material = new THREE.LineBasicMaterial( {
         color: 'red',
         linewidth: 1,
     } );
-    const line = new THREE.Line( geometry, material );
-    line.scale.setScalar( 2 );
+
+    return new THREE.Line( geometry, material );
+
+}
+
+function init() {
+    // define a reconnecting WebSocket
+    if (ENABLED_WEBSOCKETS) {
+        const rws_options = {
+            maxEnqueuedMessages: 0
+        };
+        rws = new ReconnectingWebSocket(LASER_WC_URL, [], rws_options);
+    }
+
+    camera = new THREE.PerspectiveCamera( 33, sizes.width / sizes.height, 0.1, 100 );
+    camera.position.z = 10;
+    camera.position.x = -1.5;
+    camera.position.y = -1.5;
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color( 0, 0, 0 );
+
+    renderer = new SVGRenderer();
+    renderer.setSize( sizes.width, sizes.height );
+    document.body.appendChild( renderer.domElement );
+
+    //
+    const line = addRing();
+    line.scale.setScalar( 1 );
     scene.add( line );
 
     //
 
-    window.addEventListener( 'resize', onWindowResize );
+    // window.addEventListener( 'resize', onWindowResize );
 
 }
 
@@ -144,3 +152,8 @@ const sendSvgToLaser = () => {
         console.log("SVG is empty");
     }
 };
+
+
+if (ENABLED_WEBSOCKETS) {
+    setInterval(sendSvgToLaser, 50);
+}
