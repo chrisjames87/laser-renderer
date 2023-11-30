@@ -4,6 +4,8 @@ import { SVGRenderer } from 'three/examples/jsm/renderers/SVGRenderer';
 
 import * as dat from 'lil-gui'
 
+import ReconnectingWebSocket from 'reconnecting-websocket';
+
 /**
  * Debug
  */
@@ -35,12 +37,22 @@ gui.add(debugObject, 'createSVG');
 
 THREE.ColorManagement.enabled = false;
 
-let camera, scene, renderer;
+let camera, scene, renderer, rws;
+
+const ENABLED_WEBSOCKETS = true;
+const LASER_WC_URL = 'ws://localhost:8321';
 
 init();
 animate();
 
 function init() {
+    // define a reconnecting WebSocket
+    if (ENABLED_WEBSOCKETS) {
+        const rws_options = {
+            maxEnqueuedMessages: 0
+        };
+        rws = new ReconnectingWebSocket(LASER_WC_URL, [], rws_options);
+    }
 
     camera = new THREE.PerspectiveCamera( 33, window.innerWidth / window.innerHeight, 0.1, 100 );
     camera.position.z = 10;
