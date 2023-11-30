@@ -2,6 +2,37 @@ import './style.css'
 import * as THREE from 'three'
 import { SVGRenderer } from 'three/examples/jsm/renderers/SVGRenderer';
 
+import * as dat from 'lil-gui'
+
+/**
+ * Debug
+ */
+const gui = new dat.GUI()
+
+const debugObject = {}
+
+// save SVG
+debugObject.createSVG = () => {
+
+    console.log("Make an SVG")
+
+    // const rendererSVG = new SVGRenderer();
+  
+    // rendererSVG.setSize(sizes.width, sizes.height)
+    // rendererSVG.setViewport(0, -1080, sizes.width, sizes.height);
+    // rendererSVG.render(scene, camera);
+    // console.log("Made an SVG");
+    // console.log(rendererSVG.domElement);
+
+    // console.log(rendererSVG.domElement.getElementsByTagName('path'));
+    // sendMessage()
+};
+
+
+gui.add(debugObject, 'createSVG');
+
+
+
 THREE.ColorManagement.enabled = false;
 
 let camera, scene, renderer;
@@ -42,23 +73,11 @@ function init() {
 
     //
 
-    for ( let i = 1; i <= 3; i ++ ) {
 
-        const material = new THREE.LineBasicMaterial( {
-            color: Math.random() * 0xffffff,
-            linewidth: 10
-        } );
-        const line = new THREE.Line( geometry, material );
-        line.scale.setScalar( i / 3 );
-        scene.add( line );
 
-    }
-
-    const material = new THREE.LineDashedMaterial( {
-        color: 'blue',
+    const material = new THREE.LineBasicMaterial( {
+        color: 'red',
         linewidth: 1,
-        dashSize: 10,
-        gapSize: 10
     } );
     const line = new THREE.Line( geometry, material );
     line.scale.setScalar( 2 );
