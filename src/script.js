@@ -6,15 +6,23 @@ import * as dat from 'lil-gui'
 
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
+
+THREE.ColorManagement.enabled = false;
+
+let camera, scene, renderer, rws;
+
+const ENABLED_WEBSOCKETS = true;
+const LASER_WC_URL = 'ws://localhost:8321';
+
+
 /**
- * Debug
+ * GUI
  */
 const gui = new dat.GUI()
-
-const debugObject = {}
+const buttons = {}
 
 // save SVG
-debugObject.createSVG = () => {
+buttons.createSVG = () => {
 
     console.log("Make an SVG")
 
@@ -24,23 +32,14 @@ debugObject.createSVG = () => {
     // rendererSVG.setViewport(0, -1080, sizes.width, sizes.height);
     // rendererSVG.render(scene, camera);
     // console.log("Made an SVG");
-    // console.log(rendererSVG.domElement);
-
-    // console.log(rendererSVG.domElement.getElementsByTagName('path'));
-    // sendMessage()
+    console.log(renderer.domElement);
+    sendSvgToLaser()
 };
 
 
-gui.add(debugObject, 'createSVG');
+gui.add(buttons, 'createSVG');
 
 
-
-THREE.ColorManagement.enabled = false;
-
-let camera, scene, renderer, rws;
-
-const ENABLED_WEBSOCKETS = true;
-const LASER_WC_URL = 'ws://localhost:8321';
 
 init();
 animate();
@@ -128,3 +127,20 @@ function animate() {
     requestAnimationFrame( animate );
 
 }
+
+
+// Function to send a message to the WebSocket server
+const sendSvgToLaser = () => {
+    if (renderer.domElement.getElementsByTagName('path').length > 0) {
+        // renderer.domElement.setAttribute('viewBox', '0 0 1080 1080');
+        const messageObject = { position: 'SVG', file: renderer.domElement.outerHTML };
+        const messageString = JSON.stringify(messageObject);
+        console.log(messageString);
+        if (ENABLED_WEBSOCKETS) {
+            rws.send(messageString);
+        }
+    } else {
+        // String is empty
+        console.log("SVG is empty");
+    }
+};
