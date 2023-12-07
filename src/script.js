@@ -6,10 +6,15 @@ import * as dat from 'lil-gui'
 
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
+const parse = require('parse-svg-path');
+
+
+const helpers = require("./helpers");
+
 
 THREE.ColorManagement.enabled = false;
 
-let camera, scene, renderer, rws;
+let camera, scene, renderer, rws, line;
 
 const ENABLED_WEBSOCKETS = true;
 const LASER_WC_URL = 'ws://localhost:8321';
@@ -25,14 +30,7 @@ const buttons = {}
 buttons.createSVG = () => {
 
     console.log("Make an SVG")
-
-    // const rendererSVG = new SVGRenderer();
-  
-    // rendererSVG.setSize(sizes.width, sizes.height)
-    // rendererSVG.setViewport(0, -1080, sizes.width, sizes.height);
-    // rendererSVG.render(scene, camera);
-    // console.log("Made an SVG");
-    console.log(renderer.domElement);
+    // console.log(renderer.domElement);
     sendSvgToLaser()
 };
 
@@ -49,7 +47,7 @@ animate();
 
 function addRing() {
     const vertices = [];
-    const divisions = 50;
+    const divisions = 10;
 
     for ( let i = 0; i <= divisions; i ++ ) {
 
@@ -76,6 +74,20 @@ function addRing() {
 
 }
 
+function onDocumentKeyDown(event) {
+    var keyCode = event.which;
+    if (keyCode == 87) {        // 'W'
+        line.position.y -= 0.5
+    } else if (keyCode == 83) { // 'S'
+        line.position.y += 0.5;
+    } else if (keyCode == 65) { // 'A'
+        line.position.x -= 0.5; 
+    } else if (keyCode == 68) { // 'D'  
+        line.position.x += 0.5;  
+    }
+};
+document.addEventListener("keydown", onDocumentKeyDown, false);
+
 function init() {
     // define a reconnecting WebSocket
     if (ENABLED_WEBSOCKETS) {
@@ -87,19 +99,20 @@ function init() {
 
     camera = new THREE.PerspectiveCamera( 33, sizes.width / sizes.height, 0.1, 100 );
     camera.position.z = 10;
-    camera.position.x = -1.5;
-    camera.position.y = -1.5;
+    // camera.position.x = -2; // left to right
+    // camera.position.y = 2; // up to down
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color( 0, 0, 0 );
 
     renderer = new SVGRenderer();
+
     renderer.setSize( sizes.width, sizes.height );
     document.body.appendChild( renderer.domElement );
 
     //
-    const line = addRing();
-    line.scale.setScalar( 1 );
+    line = addRing();
+    line.scale.setScalar( 0.5 );
     scene.add( line );
 
     //
@@ -124,8 +137,8 @@ function animate() {
 
     scene.traverse( function ( child ) {
 
-        child.rotation.x = count + ( time / 3 );
-        child.rotation.z = count + ( time / 4 );
+        // child.rotation.x = count + ( time / 3 );
+        // child.rotation.z = count + ( time / 4 );
 
         count ++;
 
@@ -140,10 +153,30 @@ function animate() {
 // Function to send a message to the WebSocket server
 const sendSvgToLaser = () => {
     if (renderer.domElement.getElementsByTagName('path').length > 0) {
-        // renderer.domElement.setAttribute('viewBox', '0 0 1080 1080');
-        const messageObject = { position: 'SVG', file: renderer.domElement.outerHTML };
+
+        const svg = Array.from(document.body.getElementsByTagName('svg'))[0];
+        const svgCopy = svg.cloneNode(true);
+
+        // Update viewBox, height, and width attributes
+        svgCopy.setAttribute('viewBox', '0 0 1080 1080'); // Example viewBox value
+        svgCopy.setAttribute('height', '1080'); // Example height value
+        svgCopy.setAttribute('width', '1080'); // Example width value
+      
+        const points = parse(svgCopy.getElementsByTagName('path')[0].getAttribute('d'));
+      
+        const recalibratedPoints = helpers.recalibrate(points);
+        const offsettedPoints = helpers.addOffsetToPoints(recalibratedPoints, 2, 2);
+      
+        // console.log(offsettedPoints);
+      
+        const svgPathData = helpers.pointsToSvgPath(offsettedPoints);
+      
+        svgCopy.getElementsByTagName('path')[0].setAttribute('d', svgPathData);
+      
+        console.log(svgCopy);
+        const messageObject = { position: 'SVG', file: svgCopy.outerHTML };
         const messageString = JSON.stringify(messageObject);
-        console.log(messageString);
+        // console.log(messageString);
         if (ENABLED_WEBSOCKETS) {
             rws.send(messageString);
         }
