@@ -34,10 +34,54 @@ const recalibrate = (points) => {
     });
   
     return shiftedPoints;
-  };
+};
+
+const recalibrateAllPaths = (paths) => {
+  // Step 1: Find the minimum X and Y values in the shape
+  let minX = Infinity;
+  let minY = Infinity;
+  let needsShift = false;
+
+  let returned_shifted_paths = [];
+  
+  /* eslint-disable */
+  for (const points of paths) {
+    /* eslint-disable */
+    for (const item of points) {
+      if (item[0] === 'M' || item[0] === 'L') {
+        const x = item[1];
+        const y = item[2];
+        if (x < 0 || y < 0) {
+          needsShift = true;
+        }
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+      }
+    }
+    /* eslint-enable */
+
+    // Step 2: Determine the shift values if needed
+    const shiftX = -minX;
+    const shiftY = -minY;
+
+    // Step 3: Update the shape's coordinates if needed
+    const shiftedPoints = points.map((item) => {
+      if (item[0] === 'M' || item[0] === 'L') {
+        const x = item[1] + shiftX;
+        const y = item[2] + shiftY;
+        return [item[0], x, y];
+      }
+      return item; // Preserve non-coordinate items like 'z'
+    });
+
+    returned_shifted_paths.push(shiftedPoints);
+  }
+  return returned_shifted_paths;
+};
 
 
-  const pointsToSvgPath = (points) => {
+
+const pointsToSvgPath = (points) => {
     let pathData = '';
     let lastCommand = '';
   
@@ -82,4 +126,4 @@ const recalibrate = (points) => {
 
 
 
-  module.exports = { recalibrate, pointsToSvgPath, addOffsetToPoints };  
+  module.exports = { recalibrate, recalibrateAllPaths, pointsToSvgPath, addOffsetToPoints };  

@@ -76,7 +76,7 @@ function addRing() {
 
 function addCalibrationPoint() {
     const vertices = [];
-    const divisions = 1;
+    const divisions = 2;
 
     for ( let i = 0; i <= divisions; i ++ ) {
 
@@ -95,7 +95,7 @@ function addCalibrationPoint() {
     //
 
     const material = new THREE.LineBasicMaterial( {
-        color: 'white',
+        color: 'red',
         linewidth: 1,
     } );
 
@@ -199,28 +199,29 @@ const sendSvgToLaser = () => {
       
 
         // Use filter to remove unwanted paths
+        // const calibrationPaths = [...svgCopy.getElementsByTagName('path')].filter(path => {return path.getAttribute('style').includes('stroke-width:0') });
+        // const filteredPaths = [...svgCopy.getElementsByTagName('path')].filter(path => {return path.getAttribute('style').includes('stroke-width:1') });
 
-
-        const calibrationPaths = [...svgCopy.getElementsByTagName('path')].filter(path => {return path.getAttribute('style').includes('stroke-width:0') });
-
-        const filteredPaths = [...svgCopy.getElementsByTagName('path')].filter(path => {return path.getAttribute('style').includes('stroke-width:1') });
-
+        const unfilterPaths = [...svgCopy.getElementsByTagName('path')]
   
 
-        const paths = [...filteredPaths].map(path => 
+        const paths = [...unfilterPaths].map(path => 
             helpers.recalibrate(parse(path.getAttribute('d')))
         )
 
+        const allPaths = helpers.recalibrateAllPaths(paths);
+        console.log("allPaths");
+        console.log(allPaths);
 
-        const recalibrated_points = [...paths].map(x => helpers.recalibrate(x));
-        const new_paths = [...recalibrated_points].map(y => helpers.pointsToSvgPath(helpers.addOffsetToPoints(y, 2, 2)));
+        // const recalibrated_points = [...paths].map(x => helpers.recalibrate(x));
+        const new_paths = [...allPaths].map(y => helpers.pointsToSvgPath(helpers.addOffsetToPoints(y, 2, 2)));
 
         while (svgCopy.firstChild) {
             svgCopy.removeChild(svgCopy.lastChild);
         }
 
 
-        console.log(new_paths);
+        // console.log(new_paths);
 
         [...new_paths].map(item => {
             let newElement = document.createElementNS("http://www.w3.org/2000/svg", 'path') //Create a path in SVG's namespace
@@ -247,5 +248,5 @@ const sendSvgToLaser = () => {
 
 
 if (ENABLED_WEBSOCKETS) {
-    setInterval(sendSvgToLaser, 50);
+    // setInterval(sendSvgToLaser, 50);
 }
