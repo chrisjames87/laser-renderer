@@ -14,7 +14,7 @@ const helpers = require("./helpers");
 
 THREE.ColorManagement.enabled = false;
 
-let camera, scene, renderer, rws, line;
+let camera, scene, renderer, rws, line, calibration;
 
 const ENABLED_WEBSOCKETS = true;
 const LASER_WC_URL = 'ws://localhost:8321';
@@ -74,6 +74,35 @@ function addRing() {
 
 }
 
+function addCalibrationPoint() {
+    const vertices = [];
+    const divisions = 1;
+
+    for ( let i = 0; i <= divisions; i ++ ) {
+
+        const v = ( i / divisions ) * ( Math.PI * 2 );
+
+        const x = Math.sin( v );
+        const z = Math.cos( v );
+
+        vertices.push( x, 0, z );
+
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+
+    //
+
+    const material = new THREE.LineBasicMaterial( {
+        color: 'white',
+        linewidth: 1,
+    } );
+
+    return new THREE.Line( geometry, material );
+
+}
+
 function onDocumentKeyDown(event) {
     var keyCode = event.which;
     if (keyCode == 87) {        // 'W'
@@ -110,12 +139,18 @@ function init() {
     renderer.setSize( sizes.width, sizes.height );
     document.body.appendChild( renderer.domElement );
 
-    //
+    // RING
     line = addRing();
     line.scale.setScalar( 0.5 );
     scene.add( line );
+    
+    // CALIBRATION
+    calibration = addCalibrationPoint();
+    calibration.scale.setScalar( 0.05 );
+    calibration.position.x = -2.9;
+    calibration.position.y = 2.9;
 
-    //
+    scene.add( calibration );
 
     // window.addEventListener( 'resize', onWindowResize );
 
