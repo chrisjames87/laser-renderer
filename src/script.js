@@ -197,16 +197,20 @@ const sendSvgToLaser = () => {
         svgCopy.setAttribute('height', '1080'); // Example height value
         svgCopy.setAttribute('width', '1080'); // Example width value
       
-        const points = parse(svgCopy.getElementsByTagName('path')[0].getAttribute('d'));
+     
+
+        const paths = [...svgCopy.getElementsByTagName('path')].map(path => 
+            helpers.recalibrate(parse(path.getAttribute('d')))
+        )
+
+        const recalibrated_points = [...paths].map(x => helpers.recalibrate(x));
+        const new_paths = [...recalibrated_points].map(y => helpers.pointsToSvgPath(helpers.addOffsetToPoints(y, 2, 2)));
+
+
+        [...new_paths].map((item, index) => 
+            svgCopy.getElementsByTagName('path')[index].setAttribute('d', item)
+        );
       
-        const recalibratedPoints = helpers.recalibrate(points);
-        const offsettedPoints = helpers.addOffsetToPoints(recalibratedPoints, 2, 2);
-      
-        // console.log(offsettedPoints);
-      
-        const svgPathData = helpers.pointsToSvgPath(offsettedPoints);
-      
-        svgCopy.getElementsByTagName('path')[0].setAttribute('d', svgPathData);
       
         console.log(svgCopy);
         const messageObject = { position: 'SVG', file: svgCopy.outerHTML };
