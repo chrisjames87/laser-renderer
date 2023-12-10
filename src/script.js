@@ -197,31 +197,19 @@ const sendSvgToLaser = () => {
         svgCopy.setAttribute('height', '1080'); // Example height value
         svgCopy.setAttribute('width', '1080'); // Example width value
       
-
-        // Use filter to remove unwanted paths
-        // const calibrationPaths = [...svgCopy.getElementsByTagName('path')].filter(path => {return path.getAttribute('style').includes('stroke-width:0') });
-        // const filteredPaths = [...svgCopy.getElementsByTagName('path')].filter(path => {return path.getAttribute('style').includes('stroke-width:1') });
-
         const unfilterPaths = [...svgCopy.getElementsByTagName('path')]
   
-
         const paths = [...unfilterPaths].map(path => 
             helpers.recalibrate(parse(path.getAttribute('d')))
         )
 
         const allPaths = helpers.recalibrateAllPaths(paths);
-        console.log("allPaths");
-        console.log(allPaths);
 
-        // const recalibrated_points = [...paths].map(x => helpers.recalibrate(x));
         const new_paths = [...allPaths].map(y => helpers.pointsToSvgPath(helpers.addOffsetToPoints(y, 2, 2)));
 
         while (svgCopy.firstChild) {
             svgCopy.removeChild(svgCopy.lastChild);
         }
-
-
-        // console.log(new_paths);
 
         [...new_paths].map(item => {
             let newElement = document.createElementNS("http://www.w3.org/2000/svg", 'path') //Create a path in SVG's namespace
@@ -232,11 +220,10 @@ const sendSvgToLaser = () => {
             }
         );
 
-        console.log(svgCopy);
-      
+        
         const messageObject = { position: 'SVG', file: svgCopy.outerHTML };
         const messageString = JSON.stringify(messageObject);
-        // console.log(messageString);
+
         if (ENABLED_WEBSOCKETS) {
             rws.send(messageString);
         }

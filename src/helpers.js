@@ -1,3 +1,6 @@
+
+const _ = require('lodash');
+
 // helpers
 const recalibrate = (points) => {
     // Step 1: Find the minimum X and Y values in the shape
@@ -41,6 +44,7 @@ const recalibrateAllPaths = (paths) => {
   let minX = Infinity;
   let minY = Infinity;
   let needsShift = false;
+  let isCalibrationPoint = false;
 
   let returned_shifted_paths = [];
   
@@ -66,13 +70,24 @@ const recalibrateAllPaths = (paths) => {
 
     // Step 3: Update the shape's coordinates if needed
     const shiftedPoints = points.map((item) => {
+
+      // find the calibration lines and replace with nulls
+      if (
+        _.isEqual(item, ['M', 0, 0]) || 
+        _.isEqual(item, ['L', 0, 0]) || 
+        _.isEqual(item, ["L", 5.286859571267314,5.286859571267314]) ||
+        _.isEqual(item, ["M", 5.286859571267314,5.286859571267314])
+        ) {
+        return null
+      }
+
       if (item[0] === 'M' || item[0] === 'L') {
         const x = item[1] + shiftX;
         const y = item[2] + shiftY;
         return [item[0], x, y];
       }
       return item; // Preserve non-coordinate items like 'z'
-    });
+    }).filter(no_nulls => no_nulls) // removes the null values;
 
     returned_shifted_paths.push(shiftedPoints);
   }
