@@ -14,3 +14,7 @@ npm run dev
 # Build for production in the dist/ directory
 npm run build
 ```
+
+
+# TODOs / Issues
+- threejs items that move past the top or left side will cause and error on the laser

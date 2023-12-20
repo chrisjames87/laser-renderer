@@ -2,6 +2,24 @@
 const _ = require('lodash');
 
 // helpers
+
+
+const findMinParsedPath = (path) => {
+  let minX = Infinity;
+  let minY = Infinity;
+
+  /* eslint-disable */
+  for (const item of path) {
+    if (item[0] === 'M' || item[0] === 'L') {
+      const x = item[1];
+      const y = item[2];
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+    }
+  }
+  return [minX, minY];
+}
+
 const recalibrate = (points) => {
     // Step 1: Find the minimum X and Y values in the shape
     let minX = Infinity;
@@ -39,29 +57,11 @@ const recalibrate = (points) => {
     return shiftedPoints;
 };
 
-const recalibrateAllPaths = (paths) => {
-  // Step 1: Find the minimum X and Y values in the shape
-  let minX = Infinity;
-  let minY = Infinity;
-  let needsShift = false;
-  let isCalibrationPoint = false;
-
+const recalibrateAllPaths = (paths, minX, minY) => {
   let returned_shifted_paths = [];
   
   /* eslint-disable */
   for (const points of paths) {
-    /* eslint-disable */
-    for (const item of points) {
-      if (item[0] === 'M' || item[0] === 'L') {
-        const x = item[1];
-        const y = item[2];
-        if (x < 0 || y < 0) {
-          needsShift = true;
-        }
-        minX = Math.min(minX, x);
-        minY = Math.min(minY, y);
-      }
-    }
     /* eslint-enable */
 
     // Step 2: Determine the shift values if needed
@@ -71,29 +71,18 @@ const recalibrateAllPaths = (paths) => {
     // Step 3: Update the shape's coordinates if needed
     const shiftedPoints = points.map((item) => {
 
-      // find the calibration lines and replace with nulls
-      if (
-        _.isEqual(item, ['M', 0, 0]) || 
-        _.isEqual(item, ['L', 0, 0]) || 
-        _.isEqual(item, ["L", 5.286859571267314,5.286859571267314]) ||
-        _.isEqual(item, ["M", 5.286859571267314,5.286859571267314])
-        ) {
-        return null
-      }
-
       if (item[0] === 'M' || item[0] === 'L') {
         const x = item[1] + shiftX;
         const y = item[2] + shiftY;
         return [item[0], x, y];
       }
       return item; // Preserve non-coordinate items like 'z'
-    }).filter(no_nulls => no_nulls) // removes the null values;
+    })
 
     returned_shifted_paths.push(shiftedPoints);
   }
   return returned_shifted_paths;
 };
-
 
 
 const pointsToSvgPath = (points) => {
@@ -119,7 +108,6 @@ const pointsToSvgPath = (points) => {
     return pathData;
   };
 
-  
   const addOffsetToPoints = (points, offsetX, offsetY) => {
     // Iterate through the points and update numeric values
     const updatedPoints = points.map((item) => {
@@ -139,6 +127,4 @@ const pointsToSvgPath = (points) => {
   
   };
 
-
-
-  module.exports = { recalibrate, recalibrateAllPaths, pointsToSvgPath, addOffsetToPoints };  
+  module.exports = { recalibrate, recalibrateAllPaths, pointsToSvgPath, addOffsetToPoints, findMinParsedPath };  

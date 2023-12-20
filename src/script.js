@@ -263,12 +263,29 @@ const sendSvgToLaser = () => {
         svgCopy.setAttribute('width', '1080'); // Example width value
       
         const unfilterPaths = [...svgCopy.getElementsByTagName('path')]
-  
-        const paths = [...unfilterPaths].map(path => 
-            helpers.recalibrate(parse(path.getAttribute('d')))
+
+ 
+        // remove the calibration point from the paths array
+        let calPoint = null;
+        let otherPaths = [];
+
+        for (const path of unfilterPaths) { 
+            if (path.style.strokeWidth === '2') {
+                calPoint = path;
+            } else {
+                otherPaths.push(path);
+            }
+
+        }
+
+        // calculate the calibartion points min x y so the other paths can be ajusted
+        let [minX, minY] = helpers.findMinParsedPath(parse(calPoint.getAttribute('d')));
+
+        const pathsParsed = [...otherPaths].map(path => 
+            parse(path.getAttribute('d'))
         )
 
-        const allPaths = helpers.recalibrateAllPaths(paths);
+        const allPaths = helpers.recalibrateAllPaths(pathsParsed, minX, minY);
 
         const new_paths = [...allPaths].map(y => helpers.pointsToSvgPath(helpers.addOffsetToPoints(y, 2, 2)));
 

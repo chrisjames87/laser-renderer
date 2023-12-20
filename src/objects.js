@@ -22,7 +22,7 @@ export const addRing = () => {
     //
 
     const material = new THREE.LineBasicMaterial( {
-        color: 'red',
+        color: 'blue',
         linewidth: 1,
     } );
 
@@ -52,7 +52,7 @@ export const addCalibrationPoint = () => {
 
     const material = new THREE.LineBasicMaterial( {
         color: 'red',
-        linewidth: 1,
+        linewidth: 2, // Important, this needs to be set to 2 or the calibration point won't be detected
     } );
 
     return new THREE.Line( geometry, material );
