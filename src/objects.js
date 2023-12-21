@@ -1,9 +1,21 @@
 import * as THREE from 'three'
 
 
-export const addRing = () => {
+export const addCube = (colour = 'red') => {
+
+    // Create a wireframe cube
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshBasicMaterial({
+    color: 'red',
+    wireframe: true,
+    });
+    return new THREE.Mesh(geometry, material);
+}
+
+
+export const addRing = (colour = 'red') => {
     const vertices = [];
-    const divisions = 10;
+    const divisions = 20;
 
     for ( let i = 0; i <= divisions; i ++ ) {
 
@@ -22,7 +34,7 @@ export const addRing = () => {
     //
 
     const material = new THREE.LineBasicMaterial( {
-        color: 'blue',
+        color: colour,
         linewidth: 1,
     } );
 

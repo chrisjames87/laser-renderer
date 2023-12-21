@@ -18,7 +18,10 @@ const objects = require("./objects");
 
 THREE.ColorManagement.enabled = false;
 
-let camera, scene, renderer, rws, line, calibration;
+let camera, scene, renderer, rws, calibration;
+
+// Objects in Sence
+let ring1, ring2, cube1;
 
 const ENABLED_WEBSOCKETS = true;
 const LASER_WC_URL = 'ws://localhost:8321';
@@ -48,8 +51,8 @@ buttons.createSVG = () => {
 gui.add(buttons, 'createSVG');
 
 const sizes = {
-    width: 1080,
-    height: 1080
+    width: 1180,
+    height: 1180
 }
 
 
@@ -181,10 +184,26 @@ function init() {
     renderer.setSize( sizes.width, sizes.height );
     document.body.appendChild( renderer.domElement );
 
-    // RING
-    line = objects.addRing();
-    line.scale.setScalar( 0.5 );
-    scene.add( line );
+    // RING 1
+    ring1 = objects.addRing('red');
+    ring1.scale.setScalar( 0.5 );
+    // scene.add( ring1 );
+
+    // RING 2
+    ring2 = objects.addRing('red');
+    ring2.scale.setScalar( 3.8 );
+    // scene.add( ring2 );
+
+
+    // CUBE 1 
+
+    cube1 = objects.addCube('red');
+    cube1.rotation.z = Math.PI / 4; 
+    cube1.scale.setScalar( 4 );
+    scene.add( cube1 );
+
+
+
     
     // CALIBRATION
     calibration = objects.addCalibrationPoint();
@@ -232,9 +251,15 @@ const tick = () =>
         object.mesh.quaternion.copy(object.body.quaternion)
     }
 
-    // Rotate the cube
-    line.rotation.x += 0.01;
-    line.rotation.z += 0.01;
+    // Rotate the rings
+    ring1.rotation.x += 0.01;
+    ring1.rotation.z += 0.01;
+
+    ring2.rotation.x += 0.01;
+    ring2.rotation.y -= 0.01;
+
+    cube1.rotation.x += 0.02;
+    cube1.rotation.y -= 0.02;
 
 
     // Update controls  
@@ -287,7 +312,7 @@ const sendSvgToLaser = () => {
 
         const allPaths = helpers.recalibrateAllPaths(pathsParsed, minX, minY);
 
-        const new_paths = [...allPaths].map(y => helpers.pointsToSvgPath(helpers.addOffsetToPoints(y, 2, 2)));
+        const new_paths = [...allPaths].map(y => helpers.pointsToSvgPath(helpers.addOffsetToPoints(y, 450, 450)));
 
         while (svgCopy.firstChild) {
             svgCopy.removeChild(svgCopy.lastChild);
