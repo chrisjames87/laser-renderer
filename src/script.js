@@ -20,8 +20,18 @@ THREE.ColorManagement.enabled = false;
 
 let camera, scene, renderer, rws, calibration;
 
-// Objects in Sence
-let ring1, ring2, cube1;
+// Objects in scene
+let ring1, ring2, cube1, tree1, tree2, tree3;
+let treeGroup = new THREE.Group();
+
+
+let particleGroup = [];
+
+
+
+// Control 
+let ROTATE = false;
+let SPIN = true;
 
 const ENABLED_WEBSOCKETS = true;
 const LASER_WC_URL = 'ws://localhost:8321';
@@ -149,18 +159,37 @@ init();
 
 
 function onDocumentKeyDown(event) {
-    var keyCode = event.which;
-    if (keyCode == 87) {        // 'W'
-        line.position.y += 0.5
-    } else if (keyCode == 83) { // 'S'
-        line.position.y -= 0.5;
-    } else if (keyCode == 65) { // 'A'
-        line.position.x -= 0.5; 
-    } else if (keyCode == 68) { // 'D'  
-        line.position.x += 0.5;  
+    console.log('Key Down:', event.key);
+
+    if (event.key === 's' ) {
+        SPIN = !SPIN;
+    } else if (event.key === 'r') {
+        ROTATE = !ROTATE;
+    } else if (event.key === '1') { 
+        tree1.scale.setScalar( 1.1 );
+    } else if (event.key === '2') { 
+        tree2.scale.setScalar( 1.3 );
+    } else if (event.key === '3') { 
+        tree3.scale.setScalar( 1.5 );
+    } else if (event.key === 'p') {
+        let particle = objects.addParticle()
+        particleGroup.push(particle);
+        scene.add(particle);
     }
+
 };
 document.addEventListener("keydown", onDocumentKeyDown, false);
+
+// Define the function to be executed when a key is released
+function onDocumentKeyUp(event) {
+// Access the released key using event.key
+    console.log('Key released:', event.key);
+    tree1.scale.setScalar( 0.8 );
+    tree2.scale.setScalar( 1 );
+    tree3.scale.setScalar( 1.2 );
+}
+
+document.addEventListener('keyup', onDocumentKeyUp);
 
 function init() {
     // define a reconnecting WebSocket
@@ -200,10 +229,34 @@ function init() {
     cube1 = objects.addCube('red');
     cube1.rotation.z = Math.PI / 4; 
     cube1.scale.setScalar( 4 );
-    scene.add( cube1 );
+    // scene.add( cube1 );
 
 
+    // Christmas Tree
 
+    tree1 = objects.addChristmasTree();
+    tree1.scale.setScalar( 0.8 );
+    tree1.position.y += 1
+    scene.add( tree1 );
+
+
+    tree2 = objects.addChristmasTree();
+    tree2.scale.setScalar( 1 );
+    tree2.position.y -= 0
+    scene.add( tree2 );
+
+    tree3 = objects.addChristmasTree();
+    tree3.scale.setScalar( 1.2 );
+    tree3.position.y -= 0.8
+
+
+    scene.add( treeGroup );
+
+    treeGroup.add(tree1);
+    treeGroup.add(tree2);
+    treeGroup.add(tree3);
+
+    treeGroup.rotation.x += 0.3
     
     // CALIBRATION
     calibration = objects.addCalibrationPoint();
@@ -231,6 +284,8 @@ function onWindowResize() {
  */
 const clock = new THREE.Clock()
 let oldElapsedTime = 0
+
+let speed = 0.03;
 
 const tick = () =>
 {
@@ -260,6 +315,35 @@ const tick = () =>
 
     cube1.rotation.x += 0.02;
     cube1.rotation.y -= 0.02;
+
+
+    if (ROTATE) {
+        treeGroup.rotation.x += 0.02
+        treeGroup.rotation.y += 0.02
+    } else {
+        treeGroup.rotation.x += 0
+        treeGroup.rotation.y += 0
+    }
+
+
+    if (SPIN) {
+        treeGroup.rotation.y += 0.05
+    } else {
+        treeGroup.rotation.y += 0
+    }
+
+
+
+    // Loop through the array and edit the specified property
+    particleGroup.forEach(particle => {
+        particle.position.y -= speed;
+        // Check if the particle is out of view
+        if (particle.position.x < -2.8) {
+            // Remove particle from the scene
+            scene.remove(particle);
+        }
+    });
+
 
 
     // Update controls  

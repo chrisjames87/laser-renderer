@@ -1,5 +1,44 @@
 import * as THREE from 'three'
 
+export const addParticle = () => {
+    // Define the line geometry and material
+    let particleGeometry = new THREE.BufferGeometry();
+    let vertices = new Float32Array([
+        0, 0, 0,  // Start point
+        0.1, 0, 0   // End point
+    ]);
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+    let material = new THREE.LineBasicMaterial({ color: 0x00ff00, linewidth: 5 });
+
+    // Create the line and add it to the scene
+    let particle = new THREE.Line(particleGeometry, material);
+
+    particle.position.y += 2.8
+
+    // Generate a random number between -2.8 and 2.8
+    const min = -2.8;
+    const max = 2.8;
+
+    const randomNumber = Math.random() * (max - min) + min;
+
+    particle.position.x -= randomNumber
+    return particle
+
+}
+
+
+export const addChristmasTree = (colour = 'green') => {
+    // Create a Christmas tree (cone)
+    const treeGeometry = new THREE.ConeGeometry(1, 2, 3);
+    const treeMaterial = new THREE.MeshBasicMaterial({ 
+        color: colour,
+        wireframe: true,
+        depthTest: false, 
+    });
+    return new THREE.Mesh(treeGeometry, treeMaterial);
+}
+
 
 export const addCube = (colour = 'red') => {
 
@@ -56,7 +95,6 @@ export const addCalibrationPoint = () => {
         vertices.push( x, 0, z );
 
     }
-
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
 
