@@ -26,12 +26,15 @@ let treeGroup = new THREE.Group();
 
 
 let particleGroup = [];
+let particleTimer;
 
 
 
 // Control 
 let ROTATE = false;
 let SPIN = true;
+let SNOW = false;
+let DOUBLE = false;
 
 const ENABLED_WEBSOCKETS = true;
 const LASER_WC_URL = 'ws://localhost:8321';
@@ -156,11 +159,14 @@ gui.add(buttons, 'createStar')
 init();
 // animate();
 
-
+function dropParticle() {
+    let particle = objects.addParticle()
+    particleGroup.push(particle);
+    scene.add(particle);
+  }
 
 function onDocumentKeyDown(event) {
     console.log('Key Down:', event.key);
-
     if (event.key === 's' ) {
         SPIN = !SPIN;
     } else if (event.key === 'r') {
@@ -171,10 +177,17 @@ function onDocumentKeyDown(event) {
         tree2.scale.setScalar( 1.3 );
     } else if (event.key === '3') { 
         tree3.scale.setScalar( 1.5 );
+    } else if (event.key === 'o') { 
+        DOUBLE = !DOUBLE;
     } else if (event.key === 'p') {
-        let particle = objects.addParticle()
-        particleGroup.push(particle);
-        scene.add(particle);
+        SNOW = !SNOW;
+        if (SNOW) {
+            dropParticle()
+            const interval = DOUBLE ? 217.39 : 434.78;
+            particleTimer = setInterval(dropParticle, interval);
+        } else {
+            clearInterval(particleTimer);
+        }
     }
 
 };
@@ -327,7 +340,7 @@ const tick = () =>
 
 
     if (SPIN) {
-        treeGroup.rotation.y += 0.05
+        treeGroup.rotation.y += 0.025
     } else {
         treeGroup.rotation.y += 0
     }
