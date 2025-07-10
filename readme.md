@@ -16,5 +16,10 @@ npm run build
 ```
 
 
+# demo vids
+https://youtube.com/shorts/MfVcYIfSS3w?si=oICquLmDYRKuh8Cb
+https://youtube.com/shorts/fv0jYmgJmeE?si=NIlzy4Gf5j61mLxF
+
+
 # TODOs / Issues
 - threejs items that move past the top or left side will cause and error on the laser
