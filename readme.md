@@ -16,7 +16,7 @@ npm run build
 
 # demo vids
 - [midi keyboard with lasercube](https://youtube.com/shorts/MfVcYIfSS3w?si=oICquLmDYRKuh8Cb)
-- [3d christmax tree with msuic](https://youtube.com/shorts/fv0jYmgJmeE?si=NIlzy4Gf5j61mLxF)
+- [3d christmax tree with techno music](https://youtube.com/shorts/fv0jYmgJmeE?si=NIlzy4Gf5j61mLxF)
 
 
 # TODOs / Issues
