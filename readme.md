@@ -1,5 +1,3 @@
-# Three.js Journey
-
 ## Setup
 Download [Node.js](https://nodejs.org/en/download/).
 Run this followed commands:
@@ -17,8 +15,8 @@ npm run build
 
 
 # demo vids
-https://youtube.com/shorts/MfVcYIfSS3w?si=oICquLmDYRKuh8Cb
-https://youtube.com/shorts/fv0jYmgJmeE?si=NIlzy4Gf5j61mLxF
+- [midi keyboard with lasercube](https://youtube.com/shorts/MfVcYIfSS3w?si=oICquLmDYRKuh8Cb)
+- [3d christmax tree with msuic](https://youtube.com/shorts/fv0jYmgJmeE?si=NIlzy4Gf5j61mLxF)
 
 
 # TODOs / Issues
